@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS attendances;
+DROP TABLE IF EXISTS student_group;
 DROP TABLE IF EXISTS session_group;
 DROP TABLE IF EXISTS `groups`;
 DROP TABLE IF EXISTS sessions;
@@ -12,12 +13,13 @@ DROP TABLE IF EXISTS school_years;
 
 CREATE TABLE IF NOT EXISTS school_years
 (
-    name       VARCHAR(50) NOT NULL,
-    starts_at  DATE        NULL,
-    ends_at    DATE        NULL,
-    created_at TIMESTAMP   NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP   NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP   NULL DEFAULT NULL,
+    name            VARCHAR(50) NOT NULL,
+    starts_at       DATE        NULL,
+    ends_at         DATE        NULL,
+    is_current_year boolean          DEFAULT FALSE,
+    created_at      TIMESTAMP   NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP   NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at      TIMESTAMP   NULL DEFAULT NULL,
     PRIMARY KEY (name)
 );
 
@@ -34,62 +36,64 @@ CREATE TABLE IF NOT EXISTS teachers
     PRIMARY KEY (id)
 );
 
+# On n'autorise qu'un seul prof responsable.
 CREATE TABLE IF NOT EXISTS ues
 (
-    code                   VARCHAR(50)  NOT NULL,
-    school_year_name       VARCHAR(50)  NOT NULL,
-    credits                tinyint      NOT NULL CHECK ( credits <= 60 ),
-    title                  VARCHAR(255) NOT NULL,
-    description            TEXT         NULL,
-    responsible_teacher_id VARCHAR(50)  NOT NULL,
-    created_at             TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at             TIMESTAMP    NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at             TIMESTAMP    NULL DEFAULT NULL,
-    PRIMARY KEY (code),
-    UNIQUE uq_ues_code_school_year (school_year_name, code),
-    CONSTRAINT fk_ues_school_years FOREIGN KEY (school_year_name) REFERENCES school_years (name) ON DELETE RESTRICT ON UPDATE CASCADE,
-    CONSTRAINT fk_ues_responsible_teacher FOREIGN KEY (responsible_teacher_id) REFERENCES teachers (id) ON DELETE CASCADE ON UPDATE CASCADE
+    code                   VARCHAR(50)      NOT NULL,
+    school_year            VARCHAR(50)      NOT NULL,
+    credits                tinyint unsigned NOT NULL CHECK ( credits <= 60 ),
+    title                  VARCHAR(255)     NOT NULL,
+    description            TEXT             NULL,
+    responsible_teacher_id VARCHAR(50)      NOT NULL,
+    created_at             TIMESTAMP        NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at             TIMESTAMP        NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at             TIMESTAMP        NULL DEFAULT NULL,
+    PRIMARY KEY (school_year, code),
+    CONSTRAINT fk_ues_school_years FOREIGN KEY (school_year) REFERENCES school_years (name) ON DELETE RESTRICT ON UPDATE CASCADE,
+    CONSTRAINT fk_ues_responsible_teacher FOREIGN KEY (responsible_teacher_id) REFERENCES teachers (id) ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 
 CREATE TABLE IF NOT EXISTS aas
 (
     code           VARCHAR(50)       NOT NULL,
-    ue_code        varchar(50)       NOT NULL,
+    ue_code        VARCHAR(50)       NOT NULL,
+    school_year    VARCHAR(50)       NOT NULL,
     title          VARCHAR(255)      NOT NULL,
     hours_per_year SMALLINT UNSIGNED NOT NULL DEFAULT 0,
     quadrimester   TINYINT UNSIGNED  NOT NULL,
     created_at     TIMESTAMP         NULL     DEFAULT CURRENT_TIMESTAMP,
     updated_at     TIMESTAMP         NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
     deleted_at     TIMESTAMP         NULL     DEFAULT NULL,
-    PRIMARY KEY (code),
-    UNIQUE uq_aas_ue_code (ue_code, code),
-    CONSTRAINT fk_aas_ue FOREIGN KEY (ue_code) REFERENCES ues (code) ON DELETE CASCADE ON UPDATE CASCADE
+    PRIMARY KEY (code, ue_code, school_year),
+    CONSTRAINT fk_aas_ue FOREIGN KEY (school_year, ue_code) REFERENCES ues (school_year, code) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS aa_teacher
 (
-    aa_code    varchar(50) NOT NULL,
-    teacher_id varchar(50)     NOT NULL,
-    created_at TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP       NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (aa_code),
-    UNIQUE (aa_code, teacher_id),
-    CONSTRAINT fk_aa_code FOREIGN KEY (aa_code) REFERENCES aas (code) ON DELETE CASCADE ON UPDATE CASCADE,
+    aa_code     VARCHAR(50) NOT NULL,
+    school_year VARCHAR(50) NOT NULL,
+    teacher_id  VARCHAR(50) NOT NULL,
+    ue_code     VARCHAR(50) NOT NULL,
+    created_at  TIMESTAMP   NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP   NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (teacher_id, aa_code, school_year, ue_code),
+    CONSTRAINT fk_aa_code FOREIGN KEY (aa_code, ue_code, school_year) REFERENCES aas (code, ue_code, school_year) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_aa_teacher FOREIGN KEY (teacher_id) REFERENCES teachers (id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
 CREATE TABLE IF NOT EXISTS `groups`
 (
-    code             VARCHAR(50) NOT NULL,
-    school_year_name varchar(50) NOT NULL,
-    created_at       TIMESTAMP   NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at       TIMESTAMP   NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at       TIMESTAMP   NULL DEFAULT NULL,
-    PRIMARY KEY (code, school_year_name),
-    CONSTRAINT fk_groups_school_year FOREIGN KEY (school_year_name) REFERENCES school_years (name) ON DELETE RESTRICT ON UPDATE CASCADE
+    code        VARCHAR(50) NOT NULL,
+    school_year VARCHAR(50) NOT NULL,
+    created_at  TIMESTAMP   NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP   NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at  TIMESTAMP   NULL DEFAULT NULL,
+    PRIMARY KEY (code, school_year),
+    CONSTRAINT fk_groups_school_year FOREIGN KEY (school_year) REFERENCES school_years (name) ON DELETE RESTRICT ON UPDATE CASCADE
 );
+
 
 CREATE TABLE IF NOT EXISTS classrooms
 (
@@ -115,37 +119,57 @@ CREATE TABLE IF NOT EXISTS students
 );
 
 
-
+# En mettant ici une clé étrangère vers le prof... on n'autorise pas qu'une séance puisse être donnée par plusieurs profs.
+# Idem pour le local
 CREATE TABLE IF NOT EXISTS sessions
 (
-    id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    aa_code      varchar(50) NOT NULL,
-    title      VARCHAR(255)    NULL,
-    teacher_id varchar(50)     NOT NULL,
-    starts_at  DATETIME        NOT NULL,
-    ends_at    DATETIME        NULL,
-    classroom  VARCHAR(50)     NULL,
-    created_at TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP       NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP       NULL DEFAULT NULL,
+    id          BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+
+    aa_code     VARCHAR(50)     NOT NULL,
+    ue_code     VARCHAR(50)     NOT NULL,
+    school_year VARCHAR(50)     NOT NULL,
+
+    title       VARCHAR(255)    NULL,
+    teacher_id  VARCHAR(50)     NOT NULL,
+    starts_at   DATETIME        NOT NULL,
+    ends_at     DATETIME        NULL,
+    classroom   VARCHAR(50)     NOT NULL,
+    created_at  TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP       NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at  TIMESTAMP       NULL DEFAULT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT uq_sessions UNIQUE (aa_code, teacher_id, classroom, starts_at),
+    CONSTRAINT uq_sessions UNIQUE (aa_code, ue_code, school_year, classroom, starts_at),
+    CONSTRAINT fk_sessions_school_years FOREIGN KEY (school_year) REFERENCES school_years (name) ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT fk_classroom FOREIGN KEY (classroom) REFERENCES classrooms (name) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_st_teacher FOREIGN KEY (teacher_id) REFERENCES teachers (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_sessions_aa FOREIGN KEY (aa_code) REFERENCES aas (code) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_teacher FOREIGN KEY (teacher_id) REFERENCES teachers (id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_sessions_aa FOREIGN KEY (aa_code, ue_code, school_year) REFERENCES aas (code, ue_code, school_year) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
 CREATE TABLE IF NOT EXISTS session_group
 (
-    session_id BIGINT UNSIGNED NOT NULL,
-    group_code VARCHAR(50)     NOT NULL,
-    created_at TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP       NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
-    deleted_at TIMESTAMP       NULL DEFAULT NULL,
-    PRIMARY KEY (session_id, group_code),
+    session_id  BIGINT UNSIGNED NOT NULL,
+    group_code  VARCHAR(50)     NOT NULL,
+    school_year VARCHAR(50)     NOT NULL,
+    created_at  TIMESTAMP       NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  TIMESTAMP       NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at  TIMESTAMP       NULL DEFAULT NULL,
+    PRIMARY KEY (session_id, group_code, school_year),
     CONSTRAINT fk_sg_session FOREIGN KEY (session_id) REFERENCES sessions (id) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT fk_sg_group FOREIGN KEY (group_code) REFERENCES `groups` (code) ON DELETE CASCADE ON UPDATE CASCADE
+    CONSTRAINT fk_sg_group FOREIGN KEY (group_code, school_year) REFERENCES `groups` (code, school_year) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS student_group
+(
+    student_matricule VARCHAR(100) NOT NULL,
+    group_code        VARCHAR(50)  NOT NULL,
+    school_year       VARCHAR(50)  NOT NULL,
+    created_at        TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at        TIMESTAMP    NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at        TIMESTAMP    NULL DEFAULT NULL,
+    PRIMARY KEY (student_matricule, group_code, school_year),
+    CONSTRAINT fk_sg_student_matricule FOREIGN KEY (student_matricule) REFERENCES students (matricule) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_sg_group_code_school_year FOREIGN KEY (group_code, school_year) REFERENCES `groups` (code, school_year) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 
@@ -154,9 +178,9 @@ CREATE TABLE IF NOT EXISTS attendances
 (
     id                BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     session_id        BIGINT UNSIGNED NOT NULL,
-    student_matricule varchar(100)    NOT NULL,
+    student_matricule VARCHAR(100)    NOT NULL,
     is_present        BOOLEAN         NOT NULL DEFAULT FALSE,
-    checked_at        DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    checked_at        DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     note              TEXT            NULL,
     created_at        TIMESTAMP       NULL     DEFAULT CURRENT_TIMESTAMP,
     updated_at        TIMESTAMP       NULL     DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
