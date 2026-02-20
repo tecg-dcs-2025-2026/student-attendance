@@ -3,7 +3,8 @@
     "description": "A small app for managing the attendances of students",
     "type": "project",
     "require": {
-        "php": "^8.5"
+        "php": "^8.5",
+        "vlucas/phpdotenv": "^5.6"
     },
     "authors": [
         {
