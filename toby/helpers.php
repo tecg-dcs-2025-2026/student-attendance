@@ -11,6 +11,12 @@ if (!function_exists('dd')) {
             echo PHP_EOL;
         }
         die();
+    }
+}
 
+if (!function_exists('env')) {
+    function env(string $key, $default = null): mixed
+    {
+        return $_ENV[$key] ?? $default;
     }
 }
