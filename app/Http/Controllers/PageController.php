@@ -1,6 +1,10 @@
 <?php
-function home(): void
+namespace App\Http\Controllers;
+class PageController
 {
-    $title = 'Page d’accueil';
-    include VIEWS_PATH . '/home.php';
+    static function home(): void
+    {
+        $title = 'Page d’accueil';
+        include VIEWS_PATH . '/home.php';
+    }
 }
