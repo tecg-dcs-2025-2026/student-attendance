@@ -2,7 +2,6 @@
 
 <main class="page-main">
     <h1><?php echo $title ?></h1>
-    <?php $students = getAllStudents(); ?>
 
     <?php if (count($students) > 0): ?>
         <ol>

@@ -1,4 +1,5 @@
 <?php
+
 require __DIR__ . '/../bootstrap/app.php';
 
 require VENDOR_PATH . '/autoload.php';
@@ -10,16 +11,13 @@ $dotenv->load();
 switch ($_SERVER['REQUEST_URI']) {
     case '':
     case '/':
-        require CONTROLLERS_PATH . '/PageController.php';
-        home();
+        \App\Http\Controllers\PageController::home();
         break;
     case '/presences':
-        require CONTROLLERS_PATH . '/AttendanceController.php';
-        index();
+        \App\Http\Controllers\AttendanceController::index();
         break;
     case '/etudiants':
-        require CONTROLLERS_PATH . '/StudentController.php';
-        index();
+        \App\Http\Controllers\StudentController::index();
         break;
     default:
         $title = '404';
