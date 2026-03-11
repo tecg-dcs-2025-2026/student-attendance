@@ -6,10 +6,11 @@ use App\Models\Student;
 
 class StudentController
 {
-    static function index(): void
+    public function index(): void
     {
         $title = 'Tous les étudiants';
         $students = Student::getAllStudents();
+
         view(
             'students.index',
             compact('title', 'students')

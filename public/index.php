@@ -11,13 +11,13 @@ $dotenv->load();
 switch ($_SERVER['REQUEST_URI']) {
     case '':
     case '/':
-        \App\Http\Controllers\PageController::home();
+        new \App\Http\Controllers\PageController()->home();
         break;
     case '/presences':
-        \App\Http\Controllers\AttendanceController::index();
+        new \App\Http\Controllers\AttendanceController()->index();
         break;
     case '/etudiants':
-        \App\Http\Controllers\StudentController::index();
+        new \App\Http\Controllers\StudentController()->index();
         break;
     default:
         $title = '404';
