@@ -19,6 +19,9 @@ switch ($_SERVER['REQUEST_URI']) {
     case '/etudiants':
         new \App\Http\Controllers\StudentController()->index();
         break;
+    case '/etudiants/create':
+        new \App\Http\Controllers\StudentController()->create();
+        break;
     default:
         $title = '404';
         include VIEWS_PATH . '/404.php';
