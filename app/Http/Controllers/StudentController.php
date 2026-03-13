@@ -29,6 +29,13 @@ class StudentController
 
     public function store(): void
     {
+        if (!isset($_REQUEST['_token'], $_SESSION['token'])) {
+            die('bad request');
+        }
+
+        if ($_REQUEST['_token'] !== $_SESSION['token']) {
+            die('unauthorized');
+        };
         // Stocker un étudiant en DB
         // Demander au navigateur de se rediriger vers la page de résultat souhaitée
         die('enregistré');

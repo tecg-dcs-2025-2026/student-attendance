@@ -3,6 +3,7 @@
 <main class="page-main">
     <h1><?= $title ?></h1>
     <form action="/etudiants" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="_token" value="<?= csrf_token() ?>">
         <div>
             <label for="first-name">Prénom <sup>*</sup></label>
             <input id="first-name" name="first_name" type="text" placeholder="Jean" required>
@@ -21,11 +22,11 @@
         </div>
         <div>
             <label for="birth-date">Date de naissance</label>
-            <input id="birth-date" name="birth_date" type="date" placeholder="01/01/2000" required>
+            <input id="birth-date" name="birth_date" type="date"    >
         </div>
         <div>
             <label for="profile-photo">Photo</label>
-            <input id="profile-photo" name="profile_photo" type="file" placeholder="jean" required>
+            <input id="profile-photo" name="profile_photo" type="file">
         </div>
         <div>
             <button type="submit">Enregistrer l’étudiant</button>
