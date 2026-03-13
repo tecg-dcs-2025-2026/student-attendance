@@ -56,7 +56,7 @@ meter {
 }
 
 ::placeholder {
-    color: unset;
+    color: lightgray;
 }
 
 :where([hidden]) {

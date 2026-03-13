@@ -12,7 +12,8 @@
       "tecgdcs/helpers.php"
     ],
     "psr-4": {
-      "App\\": "app/"
+      "App\\": "app/",
+      "Tecgdcs\\": "tecgdcs/classes/"
     }
   },
   "authors": [

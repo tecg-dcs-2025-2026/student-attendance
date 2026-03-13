@@ -26,4 +26,11 @@ class StudentController
             compact('title')
         );
     }
+
+    public function store(): void
+    {
+        // Stocker un étudiant en DB
+        // Demander au navigateur de se rediriger vers la page de résultat souhaitée
+        die('enregistré');
+    }
 }
