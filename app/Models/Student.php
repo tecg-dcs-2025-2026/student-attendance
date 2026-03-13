@@ -13,6 +13,19 @@ class Student
         return null;
     }
 
+    static function getStudentById(int $id): ?array
+    {
+        try {
+            $stmt = db_connection()->prepare('SELECT id, matricule, first_name, last_name, birth_date, profile_photo, email FROM students WHERE id = :id AND deleted_at IS NULL');
+            $stmt->execute(['id' => $id]);
+            $student = $stmt->fetch();
+            return $student ?: null;
+        } catch (PDOException $e) {
+            echo $e->getMessage();
+        }
+        return null;
+    }
+
     function getAllStudentWhereFirstNameContainsA(): ?array
     {
         try {

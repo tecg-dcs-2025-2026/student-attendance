@@ -17,6 +17,25 @@ class StudentController
         );
     }
 
+    public function show(): void
+    {
+        $id = isset($_GET['id']) ? (int) $_GET['id'] : 0;
+        $student = Student::getStudentById($id);
+
+        if ($student === null) {
+            http_response_code(404);
+            view('404', ['title' => 'Étudiant introuvable']);
+            return;
+        }
+
+        $title = htmlspecialchars($student['first_name']) . ' ' . htmlspecialchars($student['last_name']);
+
+        view(
+            'students.show',
+            compact('title', 'student')
+        );
+    }
+
     public function create(): void
     {
         $title = 'Ajouter un étudiant';

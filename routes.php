@@ -21,6 +21,15 @@ return [
     ],
 
     [
+        'url' => '/etudiant',
+        'method' => 'get',
+        'action' => [
+            \App\Http\Controllers\StudentController::class,
+            'show',
+        ]
+    ],
+
+    [
         'url' => '/etudiants',
         'method' => 'get',
         'action' => [
