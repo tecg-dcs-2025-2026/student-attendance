@@ -46,4 +46,13 @@ return [
             'create',
         ]
     ],
+
+    [
+        'url' => '/etudiant',
+        'method' => 'get',
+        'action' => [
+            \App\Http\Controllers\StudentController::class,
+            'show',
+        ]
+    ],
 ];

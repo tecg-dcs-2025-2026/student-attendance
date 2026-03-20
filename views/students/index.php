@@ -7,8 +7,10 @@
         <ol>
             <?php foreach ($students as $student): ?>
                 <li>
-                    <?= $student['first_name'] ?>
-                    &nbsp;<?= $student['last_name'] ?>
+                    <a href="/etudiant?id=<?= $student->id ?>">
+                    <?= $student->first_name ?>
+                    &nbsp;<?= $student->last_name ?>
+                    </a>
                 </li>
             <?php endforeach; ?>
         </ol>

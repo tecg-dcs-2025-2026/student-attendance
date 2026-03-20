@@ -206,6 +206,14 @@ button:hover {
 div:has(>.action){
     margin-top: var(--space-lg);
 }
+dl{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+dt{
+    font-weight: bold;
+}
 
 .action {
     background-color: var(--color-primary);

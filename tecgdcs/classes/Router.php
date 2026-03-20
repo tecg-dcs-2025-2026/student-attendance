@@ -13,7 +13,7 @@ class Router
     )
     {
         $this->routes = include ROOT_PATH . '/routes.php';
-        $this->url = $_SERVER['REQUEST_URI'];
+        $this->url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         $this->method = $_SERVER['REQUEST_METHOD'];
     }
 

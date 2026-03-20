@@ -37,7 +37,38 @@ class StudentController
             die('unauthorized');
         };
         // Stocker un étudiant en DB
+
         // Demander au navigateur de se rediriger vers la page de résultat souhaitée
-        die('enregistré');
+        header('Location: /etudiants', response_code: 303);
+    }
+
+    public function show(): void
+    {
+        // Validation
+        if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+            die('Bad Request');
+        }
+
+        // Sanitisation | Nettoyage | Préparation
+        $id = (int)$_GET['id'];
+
+        // Récupération des données
+        $student = Student::find($id);
+
+        // Gestion d'un cas d'exception
+        if (!$student) {
+            die('Student not found');
+        }
+
+        $title = 'La fiche de ' . $student->first_name;
+
+        view('students.show',
+            compact(
+                'title',
+                'student'
+            )
+        );
+
+
     }
 }
