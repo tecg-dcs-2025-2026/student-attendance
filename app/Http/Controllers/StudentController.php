@@ -9,12 +9,24 @@ class StudentController
     private function check_id(): ?int
     {
         // Validation
-        if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+        if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id'])) {
             die('Bad Request');
         }
 
         // Sanitisation | Nettoyage | Préparation
-        return (int)$_GET['id'];
+        return (int)$_REQUEST['id'];
+    }
+
+    private function check_csrf(): void
+    {
+
+        if (!isset($_REQUEST['_token'], $_SESSION['token'])) {
+            die('bad request');
+        }
+
+        if ($_REQUEST['_token'] !== $_SESSION['token']) {
+            die('unauthorized');
+        };
     }
 
     public function index(): void
@@ -40,13 +52,7 @@ class StudentController
 
     public function store(): void
     {
-        if (!isset($_REQUEST['_token'], $_SESSION['token'])) {
-            die('bad request');
-        }
-
-        if ($_REQUEST['_token'] !== $_SESSION['token']) {
-            die('unauthorized');
-        };
+        $this->check_csrf();
         // Stocker un étudiant en DB
 
         // Demander au navigateur de se rediriger vers la page de résultat souhaitée
@@ -99,10 +105,21 @@ class StudentController
         );
     }
 
-    public function update()
+    public function update(): void
     {
+        $this->check_csrf();
+
         $id = $this->check_id();
 
         die('oui, update');
+    }
+
+    public function destroy(): void
+    {
+        $this->check_csrf();
+
+        $id = $this->check_id();
+
+        die('oui, destroy');
     }
 }

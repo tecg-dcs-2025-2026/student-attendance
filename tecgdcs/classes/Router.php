@@ -25,7 +25,7 @@ class Router
                 return $route['action'];
             }
         }
-        die('404');
+        die('route not found');
     }
 
     public function route()
