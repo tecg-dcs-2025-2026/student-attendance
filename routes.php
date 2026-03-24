@@ -73,4 +73,13 @@ return [
             'update',
         ]
     ],
+
+    [
+        'url' => '/etudiant',
+        'method' => 'delete',
+        'action' => [
+            \App\Http\Controllers\StudentController::class,
+            'destroy',
+        ]
+    ],
 ];
