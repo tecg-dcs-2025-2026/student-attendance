@@ -53,10 +53,21 @@ class StudentController
     public function store(): void
     {
         $this->check_csrf();
+        // Valider les données associées à la requête
+
         // Stocker un étudiant en DB
+        $student = new Student();
+
+        $student->first_name = $_POST['first_name'];
+        $student->last_name = $_POST['last_name'];
+        $student->email = $_POST['email'];
+        $student->matricule = $_POST['matricule'];
+        $student->birth_date = empty($_POST['birth_date']) ? null : $_POST['birth_date'];
+
+        $student->save();
 
         // Demander au navigateur de se rediriger vers la page de résultat souhaitée
-        header('Location: /etudiants', response_code: 303);
+        header('Location: /etudiant?id=' . $student->id, response_code: 303);
     }
 
     public function show(): void
@@ -109,9 +120,23 @@ class StudentController
     {
         $this->check_csrf();
 
+        // Validation des données qui bloque si les données sont invalides
+
         $id = $this->check_id();
 
-        die('oui, update');
+        $student = Student::find($id);
+
+        $student->first_name = $_POST['first_name'];
+        $student->last_name = $_POST['last_name'];
+        $student->email = $_POST['email'];
+        $student->matricule = $_POST['matricule'];
+        $student->birth_date = empty($_POST['birth_date']) ? null : $_POST['birth_date'];
+
+        $student->save();
+
+
+        header('Location: /etudiant?id=' . $student->id, response_code: 303);
+
     }
 
     public function destroy(): void
@@ -120,6 +145,8 @@ class StudentController
 
         $id = $this->check_id();
 
-        die('oui, destroy');
+        Student::destroy($id);
+
+        header('Location: /etudiants', response_code: 303);
     }
 }
