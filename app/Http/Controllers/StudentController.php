@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Student;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Tecgdcs\Response;
 
 class StudentController
 {
@@ -10,7 +12,7 @@ class StudentController
     {
         // Validation
         if (!isset($_REQUEST['id']) || !is_numeric($_REQUEST['id'])) {
-            die('Bad Request');
+            Response::abort(Response::BAD_REQUEST);
         }
 
         // Sanitisation | Nettoyage | Préparation
@@ -21,11 +23,11 @@ class StudentController
     {
 
         if (!isset($_REQUEST['_token'], $_SESSION['token'])) {
-            die('bad request');
+            Response::abort(Response::BAD_REQUEST);
         }
 
         if ($_REQUEST['_token'] !== $_SESSION['token']) {
-            die('unauthorized');
+            Response::abort(Response::UNAUTHORIZED);
         };
     }
 
@@ -67,19 +69,17 @@ class StudentController
         $student->save();
 
         // Demander au navigateur de se rediriger vers la page de résultat souhaitée
-        header('Location: /etudiant?id=' . $student->id, response_code: 303);
+        Response::redirect('Location: /etudiant?id=' . $student->id);
     }
 
     public function show(): void
     {
         $id = $this->check_id();
 
-        // Récupération des données
-        $student = Student::find($id);
-
-        // Gestion d'un cas d'exception
-        if (!$student) {
-            die('Student not found');
+        try {
+            $student = Student::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            Response::abort();
         }
 
         $title = 'La fiche de ' . $student->first_name;
@@ -98,12 +98,10 @@ class StudentController
     {
         $id = $this->check_id();
 
-        // Récupération des données
-        $student = Student::find($id);
-
-        // Gestion d'un cas d'exception
-        if (!$student) {
-            die('Student not found');
+        try {
+            $student = Student::findOrFail($id);
+        } catch (ModelNotFoundException $e) {
+            Response::abort();
         }
 
         $title = 'La fiche de ' . $student->first_name;
@@ -135,7 +133,7 @@ class StudentController
         $student->save();
 
 
-        header('Location: /etudiant?id=' . $student->id, response_code: 303);
+        Response::redirect('Location: /etudiant?id=' . $student->id);
 
     }
 
@@ -147,6 +145,6 @@ class StudentController
 
         Student::destroy($id);
 
-        header('Location: /etudiants', response_code: 303);
+        Response::redirect('Location: /etudiants');
     }
 }
