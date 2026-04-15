@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StudentRequest;
 use App\Models\Student;
 use Illuminate\Contracts\View\Factory;
 use Illuminate\Contracts\View\View;
@@ -30,20 +31,10 @@ class StudentController extends Controller
         );
     }
 
-    public function store(): RedirectResponse
+    public function store(StudentRequest $request): RedirectResponse
     {
-        // Stocker un étudiant en DB
-        $student = new Student;
+        $student = Student::create($request->validated());
 
-        $student->first_name = $_POST['first_name'];
-        $student->last_name = $_POST['last_name'];
-        $student->email = $_POST['email'];
-        $student->matricule = $_POST['matricule'];
-        $student->birth_date = empty($_POST['birth_date']) ? null : $_POST['birth_date'];
-
-        $student->save();
-
-        // Demander au navigateur de se rediriger vers la page de résultat souhaitée
         return redirect()->route('students.show', $student);
     }
 
@@ -62,7 +53,7 @@ class StudentController extends Controller
 
     public function edit(Student $student): View|Factory
     {
-        $title = 'La fiche de '.$student->first_name;
+        $title = 'Modifier la fiche de '.$student->first_name;
 
         return view('students.edit',
             compact(
@@ -72,18 +63,9 @@ class StudentController extends Controller
         );
     }
 
-    public function update(Student $student): RedirectResponse
+    public function update(StudentRequest $request, Student $student)
     {
-
-        // Validation des données qui bloque si les données sont invalides
-
-        $student->first_name = $_POST['first_name'];
-        $student->last_name = $_POST['last_name'];
-        $student->email = $_POST['email'];
-        $student->matricule = $_POST['matricule'];
-        $student->birth_date = empty($_POST['birth_date']) ? null : $_POST['birth_date'];
-
-        $student->save();
+        $student->update($request->validated());
 
         return redirect()->route('students.show', $student);
 

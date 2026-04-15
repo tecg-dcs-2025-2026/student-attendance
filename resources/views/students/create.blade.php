@@ -1,68 +1,39 @@
-<!doctype html>
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="{{ asset('build/assets/css/app.css') }}">
-    <title>{{ $title }} | {{ config('app.name') }}</title>
-</head>
-<body class="layout">
-<main class="page-main">
-    <h1>{{ $title }}</h1>
+<x-layout :title="$title">
+    <x-header
+        :title="$title"
+        description="Remplissez le formulaire ci-dessous pour ajouter un nouvel étudiant."
+    />
+
     <form action="{{ route('students.store') }}"
           method="post"
           enctype="multipart/form-data"
-    >
+          class=" bg-white rounded-lg border border-gray-200 shadow-sm p-8 space-y-6">
         @csrf
-        <div>
-            <label for="first-name">Prénom <sup>*</sup></label>
-            <input id="first-name" name="first_name" type="text" placeholder="Jean" required>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-input-field name="last_name" label="Nom de famille" type="text" placeholder="Ex : Johansson" :error="$errors->has('last_name')" required/>
+            <x-input-field name="first_name" label="Prénom" type="text" placeholder="Ex : Jean" :error="$errors->has('first_name')" required/>
         </div>
-        <div>
-            <label for="family-name">Nom de famille <sup>*</sup></label>
-            <input id="family-name" name="last_name" type="text" placeholder="Valjean" required>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-input-field name="email" label="Email" type="email" placeholder="Ex : jean@student.hepl.be" :error="$errors->has('email')" required/>
+            <x-input-field name="matricule" label="Matricule" type="text" placeholder="Ex : tecg1234" :error="$errors->has('matricule')" required/>
         </div>
-        <div>
-            <label for="email">Email <sup>*</sup></label>
-            <input id="email" name="email" type="email" placeholder="jean.valjean@miserables.fr" required>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-input-field name="birth_date" label="Date de naissance" type="date" placeholder="Ex : 12/30/2000" :error="$errors->has('birth_date')"/>
+            <x-input-field name="profile_photo" label="Photo de profil" type="file" :error="$errors->has('profile_photo')"/>
         </div>
-        <div>
-            <label for="matricule">Matricule <sup>*</sup></label>
-            <input id="matricule" name="matricule" type="text" placeholder="tecg01234" required>
-        </div>
-        <div>
-            <label for="birth-date">Date de naissance</label>
-            <input id="birth-date" name="birth_date" type="date"    >
-        </div>
-        <div>
-            <label for="profile-photo">Photo</label>
-            <input id="profile-photo" name="profile_photo" type="file">
-        </div>
-        <div>
-            <button type="submit">Enregistrer l’étudiant</button>
+
+        <div class="flex gap-4 pt-4">
+            <button type="submit"
+                    class="flex-1 md:flex-none px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                Enregistrer l’étudiant
+            </button>
+            <a href="{{ route('students.index') }}"
+               class="flex-1 md:flex-none px-8 py-3 bg-gray-200 text-gray-900 font-medium rounded-lg hover:bg-gray-300 transition-colors">
+                Annuler
+            </a>
         </div>
     </form>
-</main>
 
-
-<nav class="page-nav" aria-labelledby="main-nav-id">
-    <h2 class="hidden" id="main-nav-id">navigation principale</h2>
-    <ul>
-        <li><a class=""
-               href="{{ route('pages.home') }}">Accueil</a></li>
-        <li><a class=""
-               href="{{ route('attendances.index') }}">Présences</a>
-        </li>
-        <li><a class=""
-               href="{{ route('students.index') }}">Étudiants</a></li>
-    </ul>
-</nav>
-
-<footer class="page-footer">
-    <p>
-        <time datetime="2025">2025</time>
-        - <abbr title="Système de gestion de contenus">SGC</abbr>
-    </p>
-</footer>
-</body>
-</html>
+    <x-button-back route="{{ route('students.index') }}" label="Voir tous les étudiants"/>
+</x-layout>
