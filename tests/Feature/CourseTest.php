@@ -58,6 +58,7 @@ test('a course has many lessons',
             ]);
         expect($mmi->lessons->count())->toBe(5);
     });
+
 test('a course has many students enroled',
     function () {
         $daniel = User::factory()->create();

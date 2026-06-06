@@ -58,7 +58,7 @@ it(
         $authRoutes =
             collect(Route::getRoutes())
                 ->filter(
-                    fn($route) => in_array('auth', $route->gatherMiddleware())
+                    fn ($route) => in_array('auth', $route->gatherMiddleware())
                 );
 
         expect($authRoutes->count())

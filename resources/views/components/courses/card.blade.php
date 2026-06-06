@@ -16,7 +16,7 @@
             <span class="course-card__level">Licence 3</span>
             <span class="course-card__students">
                 <x-svg.students />
-                {{ $course->students_count }} étudiant(s)
+                {{ $course->students_count }} {{ __('nouns.student(s)') }}
             </span>
         </div>
     </div>
