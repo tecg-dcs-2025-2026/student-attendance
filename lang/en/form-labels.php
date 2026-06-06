@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'first_name' => 'prénom',
-    'last_name' => 'nom de famille',
-    'email' => 'adresse email',
+    'first_name' => 'firstname',
+    'last_name' => 'lastname',
+    'email' => 'email address',
     'matricule' => 'matricule',
-    'birth_date' => 'date de naissance',
-    'logout' => 'logout',
+    'birth_date' => 'birth date',
+    'password' => 'password',
 ];
