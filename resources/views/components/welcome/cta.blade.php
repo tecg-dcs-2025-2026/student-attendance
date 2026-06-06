@@ -6,6 +6,6 @@
         <p style="color: var(--color-text-secondary); margin-bottom: var(--space-6);">
             Connectez-vous pour accéder à vos cours et gérer les présences
         </p>
-        <a href="{{ route('login') }}" class="btn btn--primary">Se connecter</a>
+        <a href="{{ route('login') }}" class="btn btn--primary">{{ ucfirst(__('verbs.login')) }}</a>
     </div>
 </section>
