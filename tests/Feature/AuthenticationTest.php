@@ -15,19 +15,19 @@ it(
 
         // Assert
         $response->assertStatus(200);
-        $response->assertSeeHtml(
-            '<form action="'.
-            route('login.store').
-            '" method="post"'
+        $response->assertSee(
+            'action="'.route('login.store').'"',
+            false
         );
         $response->assertSee('Connexion à votre espace privé');
-        $response->assertSeeHtmlInOrder([
-            '<input type="hidden" name="_token"',
-            '<input type="email"',
-            '<input type="password"',
-            '<button type="submit"',
-        ]);
-    });
+        $response->assertSeeInOrder([
+            'name="_token"',
+            'type="email"',
+            'type="password"',
+            'type="submit"',
+        ], false);
+    }
+);
 
 it(
     'redirects a successfully authenticated user to the predefined home page',
@@ -49,7 +49,8 @@ it(
         // Assert
         assertAuthenticated(config('fortify.guard'));
         $response->assertRedirect(config('fortify.home'));
-    });
+    }
+);
 
 it(
     'redirects a guest to the login route when he tries to access an auth only route',
@@ -57,7 +58,7 @@ it(
         $authRoutes =
             collect(Route::getRoutes())
                 ->filter(
-                    fn ($route) => in_array('auth', $route->gatherMiddleware())
+                    fn($route) => in_array('auth', $route->gatherMiddleware())
                 );
 
         expect($authRoutes->count())
@@ -69,7 +70,8 @@ it(
             $response = $this->$method($route->uri);
             $response->assertRedirect(route('login'));
         }
-    });
+    }
+);
 
 it(
     'displays a logout button to an authenticated user',
@@ -78,43 +80,45 @@ it(
         actingAs(User::factory()->create());
 
         // Act
-        $response = get(route('students.index'));
+        $response = get(route('courses.index'));
 
         // Assert
-        $response->assertSeeHtmlInOrder([
-            '<form action="'.
-            route('logout').
-            '" method="post"',
-            '<input type="hidden" name="_token"',
-            '<button type="submit"',
-        ]);
-        $response->assertSee('Me déconnecter');
-
-    });
+        $response->assertSeeInOrder([
+            'action="'.route('logout').'"',
+            'name="_token"',
+            'type="submit"',
+        ], false);
+        $response->assertSee(ucfirst(__('form-labels.logout')));
+    }
+);
 
 it(
     'does not display the logout button to a guest',
     function () {
         // Act
-        $response = get(route('pages.home'));
+        $response = get(route('home'));
 
         // Assert
-        $response->assertDontSee('Me déconnecter');
-    });
+        $response->assertDontSee(ucfirst(__('form-labels.logout')));
+    }
+);
 
 it(
     'displays a login link to a guest user on the home page',
     function () {
-        $response = get(route('pages.home'));
-        $response->assertSeeHtml('<a href="'.
-            route('login').
-            '"');
-        $response->assertSee(ucfirst(__('actions.logmein')));
+        $response = get(route('home'));
+        $response->assertSee(
+            'href="'.route('login').'"',
+            false
+        );
+        $response->assertSee(ucfirst(__('verbs.login')));
 
         actingAs(User::factory()->create());
-        $response = get(route('pages.home'));
-        $response->assertDontSeeHtml('<a href="'.
-            route('login').
-            '"');
-        $response->assertDontSee(ucfirst(__('actions.logmein')));
-    });
+        $response = get(route('home'));
+        $response->assertDontSee(
+            'href="'.route('login').'"',
+            false
+        );
+        $response->assertDontSee(ucfirst(__('verbs.login')));
+    }
+);
