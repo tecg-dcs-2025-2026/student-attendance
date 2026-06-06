@@ -3,10 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Course;
-
-use function auth;
-use function compact;
-use function view;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View as ContractView;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class CourseController extends Controller
 {
@@ -18,7 +18,8 @@ class CourseController extends Controller
                 $query
                     ->orderBy('name', 'asc')
                     ->withCount('students');
-            }]);
+            },
+        ]);
 
         return view(
             'courses.index',
@@ -26,8 +27,13 @@ class CourseController extends Controller
         );
     }
 
-    public function show(Course $course)
-    {
+    public function show(Course $course
+    ): Factory|ContractView|View|RedirectResponse {
+
+        if ($course->user_id !== auth()->id()) {
+            return redirect(route('home'));
+        }
+
         $title = $course->name;
         $course->load(['lessons' => fn ($query) => $query->orderBy('starts_at', 'asc')]);
 

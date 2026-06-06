@@ -136,3 +136,55 @@ it(
         $response->assertSee($student_count.' '.__('nouns.student(s)'));
     }
 );
+
+it(
+    'redirects to home a user attempting to show a course that belongs to another user',
+    function () {
+        $user1 = User::factory()
+            ->hasCourses()
+            ->create();
+        $user2 = User::factory()
+            ->hasCourses()
+            ->create();
+        \Pest\Laravel\actingAs($user1);
+
+        $response = $this->get(route('courses.show', $user2->courses()->first()));
+
+        $response->assertRedirect(route('home'));
+    }
+);
+
+it(
+    'eager loads the lessons of course in order to display them on the courses.show view',
+    function () {
+        $user1 = User::factory()
+            ->has(
+                Course::factory()
+                    ->hasLessons()
+            )
+            ->create();
+        \Pest\Laravel\actingAs($user1);
+
+        $response = $this->get(route('courses.show', $user1->courses()->first()));
+
+        expect($response['course']->relationLoaded('lessons'))->toBeTrue();
+    }
+);
+
+it(
+    'displays the lessons of a course in their chronological order',
+    function () {
+        $user1 = User::factory()
+            ->has(
+                Course::factory()
+                    ->hasLessons(5)
+            )
+            ->create();
+        \Pest\Laravel\actingAs($user1);
+        $course = $user1->courses()->first();
+
+        $response = $this->get(route('courses.show', $course));
+
+        $response->assertSeeInOrder($course->lessons()->get()->sortBy('starts_at')->pluck('name')->toArray());
+    }
+);
