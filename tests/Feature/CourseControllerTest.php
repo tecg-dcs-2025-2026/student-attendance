@@ -57,7 +57,7 @@ it(
 );
 
 it(
-    'passes a title to the show view',
+    'passes the required course name as a title to the courses.show view',
     function () {
         $user = User::factory()
             ->hasCourses()
@@ -72,7 +72,7 @@ it(
 );
 
 it(
-    'shows a user his courses',
+    'indexes a user his courses',
     function () {
         $user1 = User::factory()
             ->hasCourses()
@@ -89,7 +89,7 @@ it(
 );
 
 it(
-    'does not show a user the courses of another user',
+    'does not index a user the courses of another user',
     function () {
         $user1 = User::factory()
             ->hasCourses()
@@ -106,7 +106,7 @@ it(
 );
 
 it(
-    'displays the courses in the ascending order of course names',
+    'indexes the courses in the ascending order of course names',
     function () {
         $user1 = User::factory()
             ->hasCourses(10)
@@ -120,7 +120,7 @@ it(
 );
 
 it(
-    'displays the courses with the count of enrolled students',
+    'indexes the courses with the count of enrolled students',
     function () {
         $user1 = User::factory()
             ->has(
