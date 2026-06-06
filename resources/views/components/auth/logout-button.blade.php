@@ -1,4 +1,4 @@
-<form action="/logout" method="POST">
+<form action="{{ route('logout') }}" method="post">
     @csrf
     <button type="submit" class="btn btn--secondary">
         <x-svg.logout />
