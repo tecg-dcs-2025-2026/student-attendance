@@ -88,7 +88,7 @@ it(
             'name="_token"',
             'type="submit"',
         ], false);
-        $response->assertSee(ucfirst(__('form-labels.logout')));
+        $response->assertSee(ucfirst(__('verbs.logout')));
     }
 );
 
@@ -99,7 +99,7 @@ it(
         $response = get(route('home'));
 
         // Assert
-        $response->assertDontSee(ucfirst(__('form-labels.logout')));
+        $response->assertDontSee(ucfirst(__('verbs.logout')));
     }
 );
 
