@@ -89,6 +89,16 @@ it(
 );
 
 it(
+    'tells the user that there are no courses if he has none',
+    function () {
+        $user = User::factory()->create();
+        \Pest\Laravel\actingAs($user);
+        $response = $this->get(route('courses.index'));
+        $response->assertSee(__('aucun cours'));
+    }
+);
+
+it(
     'does not index a user the courses of another user',
     function () {
         $user1 = User::factory()
@@ -186,5 +196,19 @@ it(
         $response = $this->get(route('courses.show', $course));
 
         $response->assertSeeInOrder($course->lessons()->get()->sortBy('starts_at')->pluck('name')->toArray());
+    }
+);
+
+it(
+    'tells the user that there are no lessons if he has none',
+    function () {
+        $user1 = User::factory()
+            ->has(
+                Course::factory()
+            )
+            ->create();
+        \Pest\Laravel\actingAs($user1);
+        $response = $this->get(route('courses.show', $user1->courses()->first()));
+        $response->assertSee('Aucune leçon');
     }
 );

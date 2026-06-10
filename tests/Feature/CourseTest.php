@@ -74,7 +74,7 @@ test('a course has many students enroled',
                 'hours' => 60,
                 'user_id' => $daniel->id,
             ]);
-        expect($mmi->students->count())->toBe(5);
-        expect($mmi->students->pluck('id')->sort()->values())
+        expect($mmi->students->count())->toBe(5)
+            ->and($mmi->students->pluck('id')->sort()->values())
             ->toEqual($students_attending_mmi->pluck('id')->sort()->values());
     });
