@@ -2,10 +2,10 @@
 <x-layout-app>
     <main class="container section-gap">
         <x-main-header :title="$course?->name ?? 'cours 1'" />
-        @isset($course->lessons)
+        @if($course->lessons->isNotEmpty())
             <x-lessons.list :lessons="$course->lessons" />
         @else
             <p>Aucune leçon prévue.</p>
-        @endisset
+        @endif
     </main>
 </x-layout-app>

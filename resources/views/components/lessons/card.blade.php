@@ -1,5 +1,5 @@
 @props(['lesson', 'isNext' => false])
-<a href="{{ route('attendances.edit', $lesson) }}" class="card card--link card--highlighted lesson-card">
+<a href="{{ route('lessons.show', $lesson) }}" class="card card--link card--highlighted lesson-card">
     @if ($isNext)
         <span class="lesson-card__badge">Prochaine séance</span>
     @endif
