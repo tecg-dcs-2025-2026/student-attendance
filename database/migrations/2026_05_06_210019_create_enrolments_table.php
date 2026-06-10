@@ -12,9 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('enrolments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('course_id')->constrained();
-            $table->foreignId('student_id')->constrained();
+            $table->uuid('id')->primary();
+            $table->foreignUuid('course_id')->constrained();
+            $table->foreignUuid('student_id')->constrained();
             $table->timestamps();
         });
     }

@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[Table(key: 'id', keyType: 'string', incrementing: false)]
 class Course extends Model
 {
-    use HasFactory;
+    use HasFactory, HasUuids;
 
-    public $timestamps = false;
 
     public function user(): BelongsTo
     {
@@ -26,6 +28,8 @@ class Course extends Model
 
     public function students(): BelongsToMany
     {
-        return $this->belongsToMany(Student::class, 'enrolments');
+        return $this->belongsToMany(Student::class, 'enrolments')
+            ->using(Enrolment::class)
+            ->withTimestamps();
     }
 }

@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Course;
+use App\Models\Enrolment;
 use App\Models\Lesson;
 use App\Models\Student;
 use App\Models\User;
@@ -55,13 +56,20 @@ class DatabaseSeeder extends Seeder
             ]);
 
         $students = require __DIR__.'/data/students.php';
-        $ids = [];
+
         foreach ($students as $student) {
             $s = Student::create($student);
-            $ids[] = $s->id;
+            foreach ([$pw, $dcs, $mmi] as $course) {
+                Enrolment::create([
+                    'course_id' => $course->id,
+                    'student_id' => $s->id
+                ]);
+                foreach ($course->lessons as $lesson) {
+                    $lesson
+                        ->students()
+                        ->attach($s->id);
+                }
+            }
         }
-        $pw->students()->attach($ids);
-        $dcs->students()->attach($ids);
-        $mmi->students()->attach($ids);
     }
 }

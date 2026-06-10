@@ -9,11 +9,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('courses', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id')->primary();
             $table->string('name');
             $table->string('code')->unique();
             $table->unsignedTinyInteger('hours')->default(30);
-            $table->foreignId('user_id')->constrained();
+            $table->foreignUuid('user_id')->constrained();
 
             $table->timestamps();
         });
